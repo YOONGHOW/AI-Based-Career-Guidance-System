@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Haru Live2D Avatar</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      }
+      #canvas-wrapper {
+        width: 100vw;
+        height: 100vh;
+      }
+      canvas {
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        height: auto;
+      }
+    </style>
+
+    <!-- Live2D Cubism core (local, next to avatar.html or adjust path) -->
+    <script src="./live2dcubismcore.min.js"></script>
+
+    <!-- PixiJS v6 (required by pixi-live2d-display 0.4.0) -->
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
+
+    <!-- pixi-live2d-display Cubism4 bundle -->
+    <script src="https://unpkg.com/pixi-live2d-display@0.4.0/dist/cubism4.min.js"></script>
+  </head>
+  <body>
+    <div id="canvas-wrapper"></div>
+
+    <script>
+      // ====== BASIC PIXI SETUP ======
+      const canvasWrapper = document.getElementById("canvas-wrapper");
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const app = new PIXI.Application({
+        backgroundAlpha: 0,
+        resizeTo: canvasWrapper,
+        autoDensity: true,
+        antialias: true,
+        resolution: dpr,
+      });
+
+      canvasWrapper.appendChild(app.view);
+
+      window.PIXI = PIXI;
+
+      const { Live2DModel, MotionPriority, MotionPreloadStrategy } =
+        PIXI.live2d;
+
+      // Path to the .model3.json (relative to avatar.html)
+      const MODEL_PATH = "./haru/haru_greeter_t05.model3.json";
+
+      // ====== AVATAR STATES (match your TSX) ======
+      const AvatarState = {
+        Idle: "idle",
+        Listening: "listening",
+        Intro: "intro",
+        Thinking: "thinking",
+        Speaking: "speaking",
+        Finish: "finish",
+        ResultBad: "result_bad",
+        ResultGood: "result_good",
+      };
+
+      // Motions order is read from haru_greeter_t05.model3.json:
+      // index 0:  motion/haru_g_idle.motion3.json
+      // index 1:  motion/haru_g_m01.motion3.json
+      // index 2:  motion/haru_g_m02.motion3.json
+      // ...
+      // index 13: motion/haru_g_m13.motion3.json
+      // ...
+      // index 20: motion/haru_g_m20.motion3.json
+      // 21: m21, 22: m22, 23: m23, 24: m24, 25: m25, 26: m26
+
+      const stateToMotionIndexes = {
+        [AvatarState.Idle]: [0], // haru_g_idle
+        [AvatarState.Listening]: [13], // haru_g_m13
+        [AvatarState.Intro]: [10, 22], // m10 then m22
+        [AvatarState.Thinking]: [9, 20],
+        [AvatarState.Speaking]: [6, 20], // m06 then m07
+        [AvatarState.Finish]: [21, 8], // m08
+        [AvatarState.ResultBad]: [11], // m11
+        [AvatarState.ResultGood]: [21], // m21
+      };
+
+      let live2DModel = null;
+      let currentState = AvatarState.Idle;
+      let currentSequenceId = 0; // to cancel old sequences when state changes
+
+      // ====== LOGGING BACK TO REACT NATIVE (for debugging) ======
+      function sendToReactNative(message) {
+        try {
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(JSON.stringify(message));
+          } else {
+            console.log("RNWebView message:", message);
+          }
+        } catch (e) {
+          console.log("postMessage error:", e);
+        }
+      }
+
+      function logToRN(text) {
+        sendToReactNative({ type: "log", data: text });
+      }
+
+      function errorToRN(text) {
+        sendToReactNative({ type: "error", data: text });
+      }
+
+      function notifyAvatarReady() {
+        sendToReactNative({ type: "avatar_ready" });
+      }
+
+      // ====== LOAD MODEL ======
+      async function loadModel() {
+        try {
+          live2DModel = await Live2DModel.from(MODEL_PATH, {
+            autoUpdate: true,
+            autoInteract: false,
+            motionPreload: MotionPreloadStrategy.ALL,
+          });
+
+          resizeModel();
+          app.stage.addChild(live2DModel);
+
+          // Listen for resize (orientation change etc.)
+          window.addEventListener("resize", resizeModel);
+
+          logToRN("Live2D model loaded");
+          notifyAvatarReady();
+
+          // Start idle motion
+          setAvatarState(AvatarState.Idle);
+        } catch (e) {
+          console.error("Error loading model", e);
+          errorToRN("Error loading model: " + e);
+        }
+      }
+
+      function resizeModel() {
+        if (!live2DModel) return;
+
+        // Use the *CSS* size of the wrapper, not the internal pixel size
+        const w = canvasWrapper.clientWidth || app.renderer.width;
+        const h = canvasWrapper.clientHeight || app.renderer.height;
+
+        // Center her horizontally, a bit lower vertically
+        live2DModel.anchor.set(0.5, 0.5);
+        live2DModel.position.set(w * 0.5, h * 1.05);
+
+        // Adjust this divisor if she’s too big/small
+        const baseScale = Math.min(w, h) / 2200;
+        live2DModel.scale.set(baseScale);
+      }
+
+      // ====== PLAY MOTIONS BY STATE ======
+      function setAvatarState(newState) {
+        currentState = newState;
+        currentSequenceId++;
+
+        if (!live2DModel) {
+          logToRN("setAvatarState called before model ready: " + newState);
+          return;
+        }
+
+        const indexes = stateToMotionIndexes[newState];
+
+        if (!indexes || indexes.length === 0) {
+          console.warn("No motion indexes defined for state:", newState);
+          logToRN("No motion indexes defined for state: " + newState);
+          return;
+        }
+
+        // Idle: just play idle motion with IDLE priority
+        if (newState === AvatarState.Idle) {
+          try {
+            // group name is "" in your model settings
+            live2DModel.motion("", indexes[0], MotionPriority.IDLE);
+          } catch (e) {
+            console.error("Error starting idle motion:", e);
+            errorToRN("Error starting idle motion: " + e);
+          }
+          return;
+        }
+
+        // Other states: play sequence of motions with FORCE priority
+        playMotionSequence(indexes, 0, currentSequenceId);
+      }
+
+      function playMotionSequence(indexes, idx, sequenceId) {
+        if (!live2DModel) return;
+        if (sequenceId !== currentSequenceId) return; // cancelled by newer state
+
+        const groupName = ""; // motion group key in your model3.json
+        const motionIndex = indexes[idx];
+
+        try {
+          live2DModel.motion(groupName, motionIndex, MotionPriority.FORCE);
+          logToRN(
+            `Playing motion index ${motionIndex} for state ${currentState}`
+          );
+        } catch (e) {
+          console.error("Error playing motion", e);
+          errorToRN("Error playing motion: " + e);
+          return;
+        }
+
+        // If there is a next motion in the sequence, schedule it
+        if (idx < indexes.length - 1) {
+          // Rough delay between motions (ms). Adjust if needed.
+          const DELAY_BETWEEN_MOTIONS = 2500;
+
+          setTimeout(() => {
+            // Only continue if still same sequence
+            if (sequenceId === currentSequenceId) {
+              playMotionSequence(indexes, idx + 1, sequenceId);
+            }
+          }, DELAY_BETWEEN_MOTIONS);
+        }
+      }
+
+      // ====== BRIDGE FOR REACT NATIVE WEBVIEW ======
+      window.setAvatarStateFromRN = function (stateString) {
+        try {
+          logToRN("setAvatarStateFromRN: " + stateString);
+
+          let mappedState = AvatarState.Idle;
+          switch (stateString) {
+            case "idle":
+              mappedState = AvatarState.Idle;
+              break;
+            case "listening":
+              mappedState = AvatarState.Listening;
+              break;
+            case "intro":
+              mappedState = AvatarState.Intro;
+              break;
+            case "thinking":
+              mappedState = AvatarState.Thinking;
+              break;
+            case "speaking":
+              mappedState = AvatarState.Speaking;
+              break;
+            case "finish":
+              mappedState = AvatarState.Finish;
+              break;
+            case "result_good":
+              mappedState = AvatarState.ResultGood;
+              break;
+            case "result_bad":
+              mappedState = AvatarState.ResultBad;
+              break;
+            default:
+              mappedState = AvatarState.Idle;
+              break;
+          }
+
+          setAvatarState(mappedState);
+        } catch (e) {
+          console.error("Error in setAvatarStateFromRN", e);
+          errorToRN("setAvatarStateFromRN error: " + e);
+        }
+      };
+
+      // Optional: also accept messages via postMessage if you want later
+      function handleMessage(event) {
+        let payload = null;
+        try {
+          const raw = event.data || event.nativeEvent?.data;
+          if (!raw) return;
+          payload = JSON.parse(raw);
+        } catch {
+          return;
+        }
+        if (!payload || typeof payload !== "object") return;
+
+        if (payload.type === "SET_STATE" && payload.state) {
+          window.setAvatarStateFromRN(payload.state);
+        }
+      }
+
+      document.addEventListener("message", handleMessage);
+      window.addEventListener("message", handleMessage);
+
+      // ====== START LOADING MODEL ======
+      loadModel();
+    </script>
+  </body>
+</html>

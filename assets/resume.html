@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Resume Template</title>
+
+    <!-- Google Fonts (optional but matches original style) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Nunito:wght@400;600&family=Cutive+Mono&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      html {
+        font-family: "Open Sans", sans-serif;
+        background: whitesmoke;
+      }
+      .page {
+        width: 1587px;
+        height: 1123px;
+        margin: auto;
+        border: 1px solid #ccc;
+        overflow: hidden;
+        background: white;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      a {
+        text-decoration: none;
+        color: black;
+      }
+      hr {
+        background: grey;
+        border: none;
+        height: 1px;
+      }
+      #inner-nav {
+        height: 40px;
+      }
+      #container {
+        position: relative;
+        display: flex;
+      }
+      #profile {
+        flex: 15%;
+        display: block;
+        position: relative;
+        margin: 5% 2% 0 10%;
+        width: 100%;
+        height: 100%;
+      }
+      #info-cards {
+        flex: 55%;
+        display: block;
+        margin-top: 5%;
+        margin-right: 10%;
+        width: 100%;
+        height: 100%;
+      }
+      #image {
+        position: relative;
+        overflow: hidden;
+      }
+      #image,
+      #profile-photo {
+        position: relative;
+        width: 250px;
+        height: 250px;
+        border-radius: 400px;
+      }
+      #image > a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5) !important;
+        height: 100%;
+        width: 100%;
+        display: none;
+      }
+      #image > a > i {
+        -webkit-text-stroke: 1px #ffffffdd;
+        padding: 40%;
+      }
+      #image:hover a {
+        display: block;
+      }
+      #name {
+        font-size: 23px !important;
+        line-height: 20px !important;
+      }
+      #about,
+      .card > ul > li {
+        padding: 0 0 0 15px;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+      #about {
+        font-size: 20px !important;
+        padding: 0 !important;
+      }
+      #name,
+      #about > p {
+        font-weight: bolder;
+        font-family: "Open Sans", sans-serif;
+      }
+      #email {
+        font-size: 15px !important;
+        font-weight: bold !important;
+        font-family: "Cutive Mono", monospace;
+      }
+      #address,
+      #college,
+      #email,
+      #education,
+      #more-about,
+      #telephone,
+      #fax {
+        color: #555;
+        font-size: 13.5px;
+      }
+      strong,
+      span {
+        color: black;
+        font-size: 17px;
+      }
+      #about {
+        display: inline-block;
+      }
+
+      .fab {
+        font-size: 1.1em;
+      }
+      .fab,
+      .fas {
+        color: whitesmoke;
+      }
+      #about > a {
+        top: 4px;
+        right: 8px;
+      }
+      #about > a,
+      .edit {
+        position: absolute;
+        font-size: 15px !important;
+      }
+      .stroke-transparent {
+        -webkit-text-stroke: 1px #000;
+        -webkit-text-fill-color: transparent;
+      }
+      .blue {
+        color: #097bbf !important;
+        font-size: 13px;
+      }
+      .stroke-transparent-blue {
+        -webkit-text-stroke: 1px #097bbf;
+        -webkit-text-fill-color: transparent;
+      }
+      .card {
+        box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.1);
+        overflow-x: hidden;
+        margin-bottom: 30px;
+        padding: 15px 30px 30px 30px;
+        background-color: #fff;
+      }
+      .card > p {
+        color: #0e141e;
+        font-weight: bolder;
+        font-size: 18px;
+        line-height: 2;
+      }
+      .card > p > i {
+        font-size: 18px;
+      }
+      .card > a {
+        font-weight: 400;
+        font-size: 15px;
+        margin: 0;
+        margin-left: 25px;
+        padding: 0;
+        border: 0;
+        height: auto;
+        background: transparent;
+        color: #097bbf;
+        outline: none;
+        cursor: pointer;
+      }
+      .card > ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+      .tags {
+        font-size: 18px;
+        font-weight: bolder;
+      }
+      .tags ~ a {
+        display: none !important;
+      }
+      .tags span {
+        font-size: 17px;
+        font-weight: normal;
+        color: #0e141e;
+      }
+      .tags span span {
+        color: #738f93;
+      }
+      @media screen and (max-width: 1090px) {
+        #profile {
+          margin-left: 5%;
+        }
+      }
+      @media screen and (max-width: 850px) {
+        #container {
+          display: block;
+        }
+        #profile {
+          width: 90%;
+        }
+        .card {
+          margin: 0 5%;
+          margin-bottom: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- use class="page" so .page CSS applies -->
+    <div class="page">
+      <div id="inner-nav"></div>
+
+      <div id="container">
+        <!-- LEFT PROFILE COLUMN -->
+        <div id="profile">
+          <div id="image">
+            <!-- dynamic profile photo -->
+            <img
+              id="profile-photo"
+              src="{{PROFILE_PHOTO}}"
+              alt="Profile-Image"
+            />
+            <a href="#"><i class="fas fa-pen stroke-transparent"></i></a>
+          </div>
+
+          <p id="name">
+            {{NAME}}<br />
+            <span id="email">{{EMAIL}}</span>
+          </p>
+
+          <!-- you can keep this static summary for now -->
+          <p id="designation">
+            <span
+              >Bachelor’s student in Software System Development seeking a
+              6-month internship to apply academic knowledge, gain practical
+              experience, and strengthen development skills.</span
+            >
+          </p>
+
+          <hr width="100%" />
+
+          <div id="about">
+            <p style="display: inline">About</p>
+          </div>
+
+          <p id="address">
+            Address<br />
+            <strong>54, Lorong Kurau 2, Taman Kurau ,Kuala Kurau, Perak</strong>
+          </p>
+
+          <p id="education">
+            Education<br />
+            <strong>{{EDU_DEGREE}} in {{EDU_INSTITUTE}}</strong>
+          </p>
+
+          <p id="telephone">
+            Telephone<br />
+            <strong>+60-12-345 6789</strong>
+          </p>
+
+          <p id="fax">
+            Languages<br />
+            <strong>{{LANGUAGES}}</strong>
+          </p>
+        </div>
+
+        <!-- RIGHT SIDE: WORK, SKILLS, EDUCATION -->
+        <div id="info-cards">
+          <div class="card">
+            <p>
+              <i class="fas fa-briefcase stroke-transparent"></i
+              >&nbsp;&nbsp;&nbsp;Work Experience
+            </p>
+            <ul>
+              {{WORK_LIST}}
+            </ul>
+
+            <p style="margin-top: 20px">
+              <i class="fas fa-briefcase stroke-transparent"></i
+              >&nbsp;&nbsp;&nbsp;Skills
+            </p>
+            <ul>
+              {{SKILL_LIST}}
+            </ul>
+
+            <p style="margin-top: 20px">
+              <i class="fas fa-graduation-cap stroke-transparent"></i
+              >&nbsp;&nbsp;&nbsp;Education
+            </p>
+            <ul>
+              <li>
+                <p class="tags">
+                  {{EDU_INSTITUTE}}<br />
+                  <span>{{EDU_DEGREE}} | <span>{{CGPA}}</span></span>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
