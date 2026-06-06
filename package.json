@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node scripts/update-ip.js && expo start",
     "node-backend": "cd _node_email && node server.js",
-    "backend": "cd python && set GOOGLE_SPEECH_API_KEY=AIzaSyDSNH2tdsapBmA622OqaVOzp2_iO3y05Wg && python app.py",
+    "backend": "cd python && python app.py",
     "avatar-server": "live-server ./assets/live2d --port=5500 --no-browser",
     "dev": "node scripts/update-ip.js && concurrently \"npm run backend\" \"npm run node-backend\" \"npm run avatar-server\" \"npm run start\"",
     "reset-project": "node ./scripts/reset-project.js",

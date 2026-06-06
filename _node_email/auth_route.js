@@ -3,7 +3,8 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const { admin, db } = require("./firebase_admin");
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
