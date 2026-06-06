@@ -36,7 +36,7 @@ type AvatarState =
   | "result_bad";
 
 const BACKEND_BASE_URL =
-  "http://192.168.100.28:5000"; /* change IP when wifi changes */
+  `http://${process.env.EXPO_PUBLIC_API_IP || "localhost"}:5000`; /* dynamic IP via .env */
 
 const ROLES = [
   "Data Scientist",
@@ -869,7 +869,7 @@ export default function MockInterviewScreen() {
           ref={live2dRef}
           originWhitelist={["*"]}
           source={{
-            uri: `http://192.168.100.28:5500/avatar.html`, // change IP when wifi changes
+            uri: `http://${process.env.EXPO_PUBLIC_API_IP || "localhost"}:5500/avatar.html`, // dynamic IP via .env
           }}
           style={{ flex: 1, backgroundColor: "transparent" }}
           javaScriptEnabled

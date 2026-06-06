@@ -157,10 +157,14 @@ MAIL_PASS=your-gmail-app-specific-password
 ```
 *(Note: Create an App Password in your Google Account security settings rather than using your main account password.)*
 
-#### Local IP Settings:
-Because React Native runs on a physical device/emulator, it needs to contact your local computer's network interface (not localhost). Update the local machine IP in the following locations to match your router's IPv4 address:
-* [app/(job-seekerTabs)/home.tsx](file:///c:/Users/USER/SpaceCareer/app/(job-seekerTabs)/home.tsx#L32) (`BACKEND_BASE_URL`)
-* [app/job-seeker-page/interviewScreen.tsx](file:///c:/Users/USER/SpaceCareer/app/job-seeker-page/interviewScreen.tsx#L872) (Live2D Avatar URI)
+#### Root `.env` (Automated IP Configuration):
+Because React Native runs on a physical device or emulator, it needs to contact your local computer's network interface instead of `localhost`. 
+
+This process is fully automated. When you run `npm run dev` or `npm start`, the startup script (`scripts/update-ip.js`) automatically scans your network interfaces, detects your computer's current local network IP address (prioritizing Wi-Fi), and writes it to a `.env` file in the root directory:
+```env
+EXPO_PUBLIC_API_IP=192.168.x.x
+```
+The application dynamically loads this environment variable (`process.env.EXPO_PUBLIC_API_IP`) to connect the mobile application to all local services without manual editing.
 
 ---
 
