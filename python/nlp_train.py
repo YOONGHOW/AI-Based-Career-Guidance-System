@@ -289,7 +289,7 @@ def evaluate_answer_for_question_smart(role: str, qid: int, user_answer: str) ->
     sem_sim = compute_semantic_similarity(sample_answer, user_answer)
 
     mixed_sim = 0.3 * tfidf_sim + 0.7 * sem_sim
-    sim_score = round(mixed_sim * 100.0, 1)  # 0–100
+    sim_score = round(mixed_sim * 100.0, 1)  
 
     kw = keyword_coverage_score(sample_answer, user_answer, max_keywords=10)
 

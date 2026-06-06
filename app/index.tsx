@@ -113,12 +113,6 @@ export default function LoginScreen() {
         );
         const cmpSnapshot = await getDocs(companyQuery);
         const hasCompanySetup = !cmpSnapshot.empty;
-
-        if (hasCompanySetup) {
-          router.push("/(employerTabs)/home");
-        } else {
-          router.push("/employer-page/cmpInfoSetup");
-        }
       } else {
         Alert.alert("Error", "Invalid user account");
       }

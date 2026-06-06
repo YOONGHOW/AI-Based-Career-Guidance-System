@@ -29,7 +29,7 @@ type RecommendedJob = {
 };
 
 export default function Homepage() {
-  const BACKEND_BASE_URL = "http://172.20.217.243:5000/recommend"; // change IP when wifi changes
+  const BACKEND_BASE_URL = "http://192.168.100.28:5000/recommend"; // change IP when wifi changes
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 

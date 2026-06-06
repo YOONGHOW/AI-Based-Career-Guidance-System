@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 
-const BACKEND_BASE_URL = "http://172.20.217.243:5001/api/auth";
+const BACKEND_BASE_URL = "http://192.168.100.28:5001/api/auth";
 
 export default function OTPVerification() {
   const router = useRouter();

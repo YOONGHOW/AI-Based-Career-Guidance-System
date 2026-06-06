@@ -402,7 +402,6 @@ def list_mock_roles():
     roles = get_available_roles()
     return jsonify({"roles": roles})
 
-
 # ---------------------------------------------
 # Interview endpoints 
 # ---------------------------------------------
@@ -447,13 +446,7 @@ def next_questions():
 
 @app.route("/score_answer", methods=["POST"])
 def score_answer_api():
-    """
-    Body: {
-      "role": "machine_learning",
-      "question_id": 0,
-      "user_answer": "..."
-    }
-    """
+
     data = request.get_json() or {}
     role = data.get("role")
     qid = data.get("question_id")
